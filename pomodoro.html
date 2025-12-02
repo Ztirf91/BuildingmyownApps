@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1a1814;
+            --tomato-red: #e53935;
+            --tomato-dark: #b71c1c;
+            --tomato-light: #ff6f60;
+            --tomato-highlight: #ff8a80;
+            --stem-green: #558b2f;
+            --stem-dark: #33691e;
+            --leaf-green: #7cb342;
+            --text-primary: #ffffff;
+            --text-dark: #1a1814;
+            --text-muted: #9c9686;
+            --break-accent: #81b29a;
+            --break-glow: #81b29a66;
+        }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: linear-gradient(135deg, #1a1814 0%, #2d2a24 50%, #1a1814 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle background pattern */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(229, 57, 53, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(129, 178, 154, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        /* Mode tabs above tomato */
+        .mode-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.4rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .mode-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .mode-tab.active {
+            background: var(--tomato-red);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+        }
+
+        .mode-tab.active.break {
+            background: var(--break-accent);
+            box-shadow: 0 4px 15px var(--break-glow);
+        }
+
+        /* Tomato container */
+        .tomato-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Stem and leaf */
+        .stem {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .stem-main {
+            width: 14px;
+            height: 30px;
+            background: linear-gradient(90deg, var(--stem-dark) 0%, var(--stem-green) 50%, var(--stem-dark) 100%);
+            border-radius: 4px 4px 2px 2px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 45px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--leaf-green) 0%, var(--stem-green) 100%);
+            border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
+            top: 8px;
+        }
+
+        .leaf-left {
+            left: -35px;
+            transform: rotate(-35deg);
+        }
+
+        .leaf-right {
+            right: -35px;
+            transform: rotate(35deg);
+        }
+
+        .leaf-center-left {
+            left: -20px;
+            top: 2px;
+            width: 35px;
+            height: 16px;
+            transform: rotate(-15deg);
+        }
+
+        .leaf-center-right {
+            right: -20px;
+            top: 2px;
+            width: 35px;
+            height: 16px;
+            transform: rotate(15deg);
+        }
+
+        /* Tomato body */
+        .tomato {
+            width: 320px;
+            height: 280px;
+            background: 
+                radial-gradient(ellipse 80% 50% at 30% 30%, var(--tomato-highlight) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 70% 70%, var(--tomato-dark) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, var(--tomato-red) 0%, var(--tomato-dark) 100%);
+            border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 10px 30px rgba(229, 57, 53, 0.3),
+                inset 0 -10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 10px 30px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tomato.break-mode {
+            background: 
+                radial-gradient(ellipse 80% 50% at 30% 30%, #a5d6a7 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 70% 70%, #2e7d32 0%, transparent 50%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, var(--break-accent) 0%, #2e7d32 100%);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 10px 30px rgba(129, 178, 154, 0.3),
+                inset 0 -10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tomato ridges/segments */
+        .tomato::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            right: 5%;
+            bottom: 10%;
+            border-radius: inherit;
+            background: 
+                linear-gradient(90deg, 
+                    transparent 0%, 
+                    rgba(0,0,0,0.05) 20%, 
+                    transparent 25%,
+                    transparent 35%,
+                    rgba(0,0,0,0.05) 50%,
+                    transparent 55%,
+                    transparent 65%,
+                    rgba(0,0,0,0.05) 80%,
+                    transparent 100%
+                );
+            pointer-events: none;
+        }
+
+        /* Highlight shine */
+        .tomato::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 60px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            filter: blur(8px);
+            pointer-events: none;
+        }
+
+        /* Timer display inside tomato */
+        .timer-content {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .time {
+            font-family: 'Fraunces', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            text-shadow: 
+                0 2px 10px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        /* Progress indicator - circular ring around time */
+        .progress-container {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.15);
+        }
+
+        .progress-ring .progress {
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+        }
+
+        /* Intent display */
+        .intent-display {
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(229, 57, 53, 0.15);
+            border: 1px solid rgba(229, 57, 53, 0.3);
+            border-radius: 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .intent-display.visible {
+            display: block;
+        }
+
+        .intent-display.break-mode {
+            background: rgba(129, 178, 154, 0.15);
+            border-color: rgba(129, 178, 154, 0.3);
+        }
+
+        .intent-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .intent-text {
+            font-family: 'Fraunces', serif;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Controls below tomato */
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.5rem;
+        }
+
+        .btn-primary {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--tomato-light) 0%, var(--tomato-red) 50%, var(--tomato-dark) 100%);
+            color: var(--text-primary);
+            box-shadow: 
+                0 8px 25px rgba(229, 57, 53, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            font-size: 1.8rem;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(229, 57, 53, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary.break {
+            background: linear-gradient(135deg, #a5d6a7 0%, var(--break-accent) 50%, #2e7d32 100%);
+            box-shadow: 
+                0 8px 25px rgba(129, 178, 154, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary.break:hover {
+            box-shadow: 0 12px 35px rgba(129, 178, 154, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .session-counter {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .session-counter span {
+            color: var(--tomato-light);
+            font-weight: 500;
+        }
+
+        /* Pulse animation when timer is running */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        .time.running {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Tomato wobble on complete */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .tomato.complete {
+            animation: wobble 0.5s ease-in-out;
+        }
+
+        /* Keyboard hints */
+        .keyboard-hints {
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .keyboard-hints kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin: 0 0.2rem;
+        }
+
+        /* Intent Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #2d2a24 0%, #1a1814 100%);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .intent-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .intent-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(229, 57, 53, 0.3);
+            border-radius: 1rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .intent-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .intent-input:focus {
+            border-color: var(--tomato-red);
+            box-shadow: 0 0 20px rgba(229, 57, 53, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 1rem;
+            border: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--tomato-light) 0%, var(--tomato-red) 100%);
+            color: var(--text-primary);
+            box-shadow: 0 8px 25px rgba(229, 57, 53, 0.4);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(229, 57, 53, 0.5);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+        }
+
+        .modal-hint {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        .modal-hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Intent Modal -->
+    <div class="modal-overlay" id="intentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Was ist dein Vorhaben?</h2>
+                <p class="modal-subtitle">Setze einen klaren Intent für diese Focus-Session</p>
+            </div>
+            <div class="intent-input-wrapper">
+                <input 
+                    type="text" 
+                    class="intent-input" 
+                    id="intentInput" 
+                    placeholder="z.B. Bug in der Login-Funktion fixen..."
+                    maxlength="100"
+                    autocomplete="off"
+                >
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="skipIntentBtn">Überspringen</button>
+                <button class="modal-btn modal-btn-primary" id="startWithIntentBtn">Starten</button>
+            </div>
+            <p class="modal-hint">Drücke <kbd>Enter</kbd> zum Starten</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Pomodoro</h1>
+        
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="work" data-time="25">Focus</button>
+            <button class="mode-tab" data-mode="shortBreak" data-time="5">Short Break</button>
+            <button class="mode-tab" data-mode="longBreak" data-time="15">Long Break</button>
+        </div>
+
+        <div class="tomato-wrapper">
+            <!-- Stem and leaves -->
+            <div class="stem">
+                <div class="leaf leaf-left"></div>
+                <div class="leaf leaf-center-left"></div>
+                <div class="stem-main"></div>
+                <div class="leaf leaf-center-right"></div>
+                <div class="leaf leaf-right"></div>
+            </div>
+            
+            <!-- Tomato body -->
+            <div class="tomato" id="tomato">
+                <div class="progress-container">
+                    <svg class="progress-ring" viewBox="0 0 200 200">
+                        <circle class="bg" cx="100" cy="100" r="90"></circle>
+                        <circle class="progress" id="progressCircle" cx="100" cy="100" r="90"></circle>
+                    </svg>
+                </div>
+                <div class="timer-content">
+                    <div class="time" id="timerDisplay">25:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intent Display -->
+        <div class="intent-display" id="intentDisplay">
+            <div class="intent-label">Aktuelles Vorhaben</div>
+            <div class="intent-text" id="intentText"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="resetBtn" title="Reset (R)">↺</button>
+            <button class="btn btn-primary" id="startBtn" title="Start/Pause (Space)">▶</button>
+            <button class="btn btn-secondary" id="skipBtn" title="Skip (S)">⏭</button>
+        </div>
+
+        <div class="session-counter">
+            Sessions completed: <span id="sessionCount">0</span>
+        </div>
+
+        <div class="keyboard-hints">
+            <kbd>Space</kbd> Start/Pause · <kbd>R</kbd> Reset · <kbd>S</kbd> Skip
+        </div>
+    </div>
+
+    <script>
+        // Timer state
+        let timeLeft = 25 * 60;
+        let totalTime = 25 * 60;
+        let isRunning = false;
+        let interval = null;
+        let currentMode = 'work';
+        let sessionsCompleted = 0;
+        let currentIntent = '';
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const progressCircle = document.getElementById('progressCircle');
+        const sessionCount = document.getElementById('sessionCount');
+        const tomato = document.getElementById('tomato');
+        const modeTabs = document.querySelectorAll('.mode-tab');
+        
+        // Intent elements
+        const intentModal = document.getElementById('intentModal');
+        const intentInput = document.getElementById('intentInput');
+        const startWithIntentBtn = document.getElementById('startWithIntentBtn');
+        const skipIntentBtn = document.getElementById('skipIntentBtn');
+        const intentDisplay = document.getElementById('intentDisplay');
+        const intentText = document.getElementById('intentText');
+
+        // Progress ring setup
+        const circumference = 2 * Math.PI * 90;
+        progressCircle.style.strokeDasharray = circumference;
+        progressCircle.style.strokeDashoffset = 0;
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update display
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+            
+            // Update progress ring
+            const progress = (totalTime - timeLeft) / totalTime;
+            const offset = circumference * (1 - progress);
+            progressCircle.style.strokeDashoffset = offset;
+
+            // Update page title
+            document.title = `${formatTime(timeLeft)} - Pomodoro`;
+        }
+
+        // Play notification sound
+        function playNotification() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create a pleasant bell-like sound
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 chord
+            
+            frequencies.forEach((freq, i) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                
+                oscillator.start(audioContext.currentTime + i * 0.1);
+                oscillator.stop(audioContext.currentTime + 1.5);
+            });
+        }
+
+        // Show intent modal
+        function showIntentModal() {
+            intentModal.classList.add('visible');
+            intentInput.value = '';
+            setTimeout(() => intentInput.focus(), 100);
+        }
+
+        // Hide intent modal
+        function hideIntentModal() {
+            intentModal.classList.remove('visible');
+            intentInput.blur();
+        }
+
+        // Set and display intent
+        function setIntent(intent) {
+            currentIntent = intent.trim();
+            if (currentIntent) {
+                intentText.textContent = currentIntent;
+                intentDisplay.classList.add('visible');
+                if (currentMode !== 'work') {
+                    intentDisplay.classList.add('break-mode');
+                } else {
+                    intentDisplay.classList.remove('break-mode');
+                }
+            } else {
+                intentDisplay.classList.remove('visible');
+            }
+        }
+
+        // Clear intent display
+        function clearIntent() {
+            currentIntent = '';
+            intentDisplay.classList.remove('visible');
+        }
+
+        // Start timer (actual start, without modal)
+        function startTimerDirectly() {
+            if (isRunning) return;
+            
+            interval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    isRunning = false;
+                    startBtn.textContent = '▶';
+                    timerDisplay.classList.remove('running');
+                    
+                    // Play sound and animate
+                    playNotification();
+                    tomato.classList.add('complete');
+                    setTimeout(() => tomato.classList.remove('complete'), 500);
+                    
+                    // Update sessions if work mode completed
+                    if (currentMode === 'work') {
+                        sessionsCompleted++;
+                        sessionCount.textContent = sessionsCompleted;
+                        
+                        // Clear intent after work session
+                        clearIntent();
+                        
+                        // Auto-switch to break
+                        if (sessionsCompleted % 4 === 0) {
+                            switchMode('longBreak');
+                        } else {
+                            switchMode('shortBreak');
+                        }
+                    } else {
+                        // Switch back to work after break
+                        switchMode('work');
+                    }
+                }
+            }, 1000);
+            
+            isRunning = true;
+            startBtn.textContent = '⏸';
+            timerDisplay.classList.add('running');
+        }
+
+        // Start/pause timer
+        function toggleTimer() {
+            if (isRunning) {
+                // Pause
+                clearInterval(interval);
+                isRunning = false;
+                startBtn.textContent = '▶';
+                timerDisplay.classList.remove('running');
+            } else {
+                // Check if this is a fresh start in work mode (not a resume)
+                if (currentMode === 'work' && timeLeft === totalTime && !currentIntent) {
+                    // Show intent modal for new work session
+                    showIntentModal();
+                } else {
+                    // Resume or start without intent
+                    startTimerDirectly();
+                }
+            }
+        }
+
+        // Reset timer
+        function resetTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            startBtn.textContent = '▶';
+            timerDisplay.classList.remove('running');
+            
+            const activeTab = document.querySelector('.mode-tab.active');
+            const minutes = parseInt(activeTab.dataset.time);
+            timeLeft = minutes * 60;
+            totalTime = minutes * 60;
+            updateDisplay();
+            
+            // Clear intent on reset
+            if (currentMode === 'work') {
+                clearIntent();
+            }
+        }
+
+        // Switch mode
+        function switchMode(mode) {
+            const tab = document.querySelector(`.mode-tab[data-mode="${mode}"]`);
+            
+            if (!tab) return;
+            
+            // Update active tab
+            modeTabs.forEach(t => {
+                t.classList.remove('active');
+                t.classList.remove('break');
+            });
+            tab.classList.add('active');
+            
+            // Determine if it's a break mode
+            const isBreak = mode !== 'work';
+            currentMode = mode;
+            
+            // Update classes
+            if (isBreak) {
+                tab.classList.add('break');
+                tomato.classList.add('break-mode');
+                startBtn.classList.add('break');
+                intentDisplay.classList.add('break-mode');
+            } else {
+                tomato.classList.remove('break-mode');
+                startBtn.classList.remove('break');
+                intentDisplay.classList.remove('break-mode');
+            }
+            
+            // Reset timer with new time
+            clearInterval(interval);
+            isRunning = false;
+            startBtn.textContent = '▶';
+            timerDisplay.classList.remove('running');
+            
+            const minutes = parseInt(tab.dataset.time);
+            timeLeft = minutes * 60;
+            totalTime = minutes * 60;
+            updateDisplay();
+        }
+
+        // Skip to next mode
+        function skipTimer() {
+            if (currentMode === 'work') {
+                clearIntent();
+                if (sessionsCompleted > 0 && (sessionsCompleted + 1) % 4 === 0) {
+                    switchMode('longBreak');
+                } else {
+                    switchMode('shortBreak');
+                }
+            } else {
+                switchMode('work');
+            }
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', toggleTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipTimer);
+
+        modeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const mode = tab.dataset.mode;
+                switchMode(mode);
+            });
+        });
+
+        // Intent modal events
+        startWithIntentBtn.addEventListener('click', () => {
+            setIntent(intentInput.value);
+            hideIntentModal();
+            startTimerDirectly();
+        });
+
+        skipIntentBtn.addEventListener('click', () => {
+            hideIntentModal();
+            startTimerDirectly();
+        });
+
+        intentInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                setIntent(intentInput.value);
+                hideIntentModal();
+                startTimerDirectly();
+            } else if (e.key === 'Escape') {
+                hideIntentModal();
+            }
+        });
+
+        // Close modal on overlay click
+        intentModal.addEventListener('click', (e) => {
+            if (e.target === intentModal) {
+                hideIntentModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger shortcuts when modal is open
+            if (intentModal.classList.contains('visible')) {
+                return;
+            }
+            
+            if (e.code === 'Space') {
+                e.preventDefault();
+                toggleTimer();
+            } else if (e.code === 'KeyR') {
+                resetTimer();
+            } else if (e.code === 'KeyS') {
+                skipTimer();
+            }
+        });
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
