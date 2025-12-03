@@ -1,39 +1,39 @@
 # 🍅 Pomodoro Timer
 
-A beautiful, tomato-themed Pomodoro timer built as a single HTML file. Features an elegant visual design with a realistic tomato shape, smooth animations, and focus-enhancing functionality.
+Ein schöner, tomatenförmiger Pomodoro-Timer als einzelne HTML-Datei. Mit elegantem visuellen Design, realistischer Tomatenform, sanften Animationen und fokussteigernden Funktionen.
 
-![Pomodoro Timer](https://img.shields.io/badge/Status-Ready-brightgreen) ![HTML](https://img.shields.io/badge/HTML-Single%20File-orange) ![No Dependencies](https://img.shields.io/badge/Dependencies-None-blue)
+![Pomodoro Timer](https://img.shields.io/badge/Status-Fertig-brightgreen) ![HTML](https://img.shields.io/badge/HTML-Einzelne%20Datei-orange) ![Keine Abhängigkeiten](https://img.shields.io/badge/Abhängigkeiten-Keine-blue)
 
-## ✨ Features
+## ✨ Funktionen
 
-- **Three Timer Modes**
-  - 🎯 **Focus** — 25-minute work sessions
-  - ☕ **Short Break** — 5-minute rest periods
-  - 🌴 **Long Break** — 15-minute extended breaks (every 4 sessions)
+- **Drei Timer-Modi**
+  - 🎯 **Fokus** — 25-minütige Arbeitssessions
+  - ☕ **Kurze Pause** — 5-minütige Ruhepausen
+  - 🌴 **Lange Pause** — 15-minütige längere Pausen (alle 4 Sessions)
 
-- **Intent Setting** — Set a clear goal for each focus session to maintain productivity
+- **Vorhaben setzen** — Setze ein klares Ziel für jede Fokus-Session, um produktiv zu bleiben.
 
-- **Visual Design**
-  - Realistic 3D tomato with stem and leaves
-  - Smooth color transitions between work (red) and break (green) modes
-  - Circular progress ring showing time remaining
-  - Subtle pulse animation while timer is running
+- **Visuelles Design**
+  - Realistische 3D-Tomate mit Stiel und Blättern
+  - Sanfte Farbübergänge zwischen Arbeit (rot) und Pause (grün)
+  - Kreisförmiger Fortschrittsring zeigt verbleibende Zeit
+  - Dezente Puls-Animation während der Timer läuft
 
-- **Audio Notifications** — Pleasant bell-like chord plays when timer completes
+- **Audio-Benachrichtigungen** — Angenehmer Glockenklang bei Timer-Ende
 
-- **Session Tracking** — Keeps count of completed focus sessions
+- **Session-Tracking** — Zählt abgeschlossene Fokus-Sessions
 
-- **Keyboard Shortcuts**
-  - `Space` — Start/Pause timer
-  - `R` — Reset current timer
-  - `S` — Skip to next mode
+- **Tastaturkürzel**
+  - `Leertaste` — Timer starten/pausieren
+  - `R` — Aktuellen Timer zurücksetzen
+  - `S` — Zum nächsten Modus wechseln
 
-## 🚀 Getting Started
+## 🚀 Erste Schritte
 
-Simply open `pomodoro.html` in any modern web browser. No installation, no dependencies, no build step required.
+Öffne einfach `pomodoro.html` in einem modernen Webbrowser. Keine Installation, keine Abhängigkeiten, kein Build-Prozess nötig.
 
 ```bash
-# Just double-click the file or:
+# Einfach die Datei doppelklicken oder:
 open pomodoro.html        # macOS
 start pomodoro.html       # Windows
 xdg-open pomodoro.html    # Linux
@@ -41,24 +41,24 @@ xdg-open pomodoro.html    # Linux
 
 ## 🎨 Design
 
-The timer features a warm, dark theme with carefully crafted CSS:
+Der Timer hat ein warmes, dunkles Theme mit sorgfältig gestaltetem CSS:
 
-- **Typography**: Fraunces (serif) for display, DM Mono for UI elements
-- **Colors**: Tomato reds for focus mode, sage greens for break modes
-- **Effects**: Subtle gradients, shadows, and backdrop blur for depth
+- **Typografie**: Fraunces (Serif) für Anzeigen, DM Mono für UI-Elemente
+- **Farben**: Tomatenrot für Fokus-Modus, Salbeigrün für Pausen-Modi
+- **Effekte**: Dezente Verläufe, Schatten und Backdrop-Blur für Tiefe
 
-## 📱 Browser Support
+## 📱 Browser-Unterstützung
 
-Works in all modern browsers:
+Funktioniert in allen modernen Browsern:
 - Chrome / Edge
 - Firefox
 - Safari
 - Opera
 
-## 📄 License
+## 📄 Lizenz
 
-MIT License — Feel free to use, modify, and share!
+MIT-Lizenz — Frei zum Verwenden, Ändern und Teilen!
 
 ---
 
-*Built with 💚 using pure HTML, CSS, and JavaScript*
+*Erstellt mit 💚 in purem HTML, CSS und JavaScript*

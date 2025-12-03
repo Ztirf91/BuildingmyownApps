@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -613,12 +613,12 @@
     </div>
 
     <div class="container">
-        <h1>Pomodoro</h1>
+        <h1>Pomodoro Timer</h1>
         
         <div class="mode-tabs">
-            <button class="mode-tab active" data-mode="work" data-time="25">Focus</button>
-            <button class="mode-tab" data-mode="shortBreak" data-time="5">Short Break</button>
-            <button class="mode-tab" data-mode="longBreak" data-time="15">Long Break</button>
+            <button class="mode-tab active" data-mode="work" data-time="25">Fokus</button>
+            <button class="mode-tab" data-mode="shortBreak" data-time="5">Kurze Pause</button>
+            <button class="mode-tab" data-mode="longBreak" data-time="15">Lange Pause</button>
         </div>
 
         <div class="tomato-wrapper">
@@ -652,17 +652,17 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-secondary" id="resetBtn" title="Reset (R)">↺</button>
-            <button class="btn btn-primary" id="startBtn" title="Start/Pause (Space)">▶</button>
-            <button class="btn btn-secondary" id="skipBtn" title="Skip (S)">⏭</button>
+            <button class="btn btn-secondary" id="resetBtn" title="Zurücksetzen (R)">↺</button>
+            <button class="btn btn-primary" id="startBtn" title="Start/Pause (Leertaste)">▶</button>
+            <button class="btn btn-secondary" id="skipBtn" title="Überspringen (S)">⏭</button>
         </div>
 
         <div class="session-counter">
-            Sessions completed: <span id="sessionCount">0</span>
+            Abgeschlossene Sessions: <span id="sessionCount">0</span>
         </div>
 
         <div class="keyboard-hints">
-            <kbd>Space</kbd> Start/Pause · <kbd>R</kbd> Reset · <kbd>S</kbd> Skip
+            <kbd>Leertaste</kbd> Start/Pause · <kbd>R</kbd> Zurücksetzen · <kbd>S</kbd> Überspringen
         </div>
     </div>
 
@@ -716,7 +716,7 @@
             progressCircle.style.strokeDashoffset = offset;
 
             // Update page title
-            document.title = `${formatTime(timeLeft)} - Pomodoro`;
+            document.title = `${formatTime(timeLeft)} - Pomodoro Timer`;
         }
 
         // Play notification sound
